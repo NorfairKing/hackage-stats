@@ -1,0 +1,27 @@
+name:                hackage-stats-collector
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+  dependencies:
+  - Cabal
+  - bytestring
+  - conduit
+  - containers
+  - path
+  - path-io
+  - tar
+  - text
+  - zlib
+
+executables:
+  hackage-stats-collector:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hackage-stats-collector
