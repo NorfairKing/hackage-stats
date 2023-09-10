@@ -17,8 +17,24 @@
         overlays = [ (import ./nix/overlay.nix) ];
       };
       pkgs = pkgsFor nixpkgs;
+
+      indexTarGz = builtins.fetchurl "hackage.haskell.org/packages/index.tar.gz";
+      collector = pkgs.hackage-stats-collector;
+      csv = pkgs.runCommand "hackage-stats.csv" { } ''
+        ${collector}/bin/hackage-stats-collector ${indexTarGz} > $out
+      '';
+      pythonEnv = pkgs.python3.withPackages (ps: with ps; [ csv matplotlib ]);
+      packagesPerYearPlot = pkgs.stdenv.mkDerivation {
+        name = "packages-per-year.svg";
+        src = ./packages-per-year.py;
+        buildInputs = [ pythonEnv ];
+        buildCommand = ''
+          python $src ${csv} > $out
+        '';
+      };
     in
     {
+      packages.${system}.default = packagesPerYearPlot;
       checks.${system} = {
         pre-commit = pre-commit-hooks.lib.${system}.run {
           src = ./.;
@@ -39,6 +55,7 @@
         doBenchmark = true;
         buildInputs = (with pkgs; [
           zlib
+          pythonEnv
         ]) ++ (with pre-commit-hooks.packages.${system};
           [
             hlint

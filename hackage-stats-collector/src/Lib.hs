@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Lib
   ( someFunc,
@@ -15,8 +16,6 @@ import qualified Data.Conduit.Combinators as C
 import Data.Csv as Csv
 import Data.Csv.Conduit
 import Data.List
-import qualified Data.Map.Strict as M
-import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time
@@ -48,13 +47,14 @@ someFunc = do
       runConduit $
         yield extractedDir
           .| C.concatMapM (fmap fst . listDir)
-          .| C.take 100 -- First 100 packages
-          .| C.concatMapM (fmap fst . listDir) -- Only the first cabal file
+          .| C.concatMapM (fmap fst . listDir)
+          .| C.take 100
           .| C.concatMapM (fmap snd . listDir)
+          -- .| C.concatMapM (fmap (take 1) . fmap snd . listDir) -- Only the first cabal file
           .| C.filter ((".cabal" `isSuffixOf`) . fromAbsFile)
           .| C.mapM readPackageInfo
           .| toCsv Csv.defaultEncodeOptions
-          .| C.stderr
+          .| C.stdout
 
 data PackageInfo = PackageInfo
   { packageInfoName :: String,
@@ -73,9 +73,9 @@ readPackageInfo :: Path Abs File -> IO PackageInfo
 readPackageInfo cabalFile = do
   gpd <- Cabal.readGenericPackageDescription Cabal.silent (fromAbsFile cabalFile)
   let pd = packageDescription gpd
-  let pi = package pd
-  let packageInfoName = unPackageName $ pkgName pi
-  let packageInfoVersion = prettyShow $ pkgVersion pi
+  let pid = package pd
+  let packageInfoName = unPackageName $ pkgName pid
+  let packageInfoVersion = prettyShow $ pkgVersion pid
   let packageInfoMaintainer = T.strip $ T.pack (fromShortText (maintainer pd))
   packageInfoTime <- getModificationTime cabalFile
   pure PackageInfo {..}

@@ -2,9 +2,11 @@ final: prev:
 with final.lib;
 with final.haskell.lib;
 {
+  hackage-stats-collector = justStaticExecutables final.haskellPackages.hackage-stats-collector;
   haskellPackages = prev.haskellPackages.override (old: {
     overrides = composeExtensions (old.overrides or (_: _: { })) (
       self: super: {
+        cassava-conduit = unmarkBroken (dontCheck super.cassava-conduit);
         hackage-stats-collector =
           buildFromSdist (overrideCabal
             (
