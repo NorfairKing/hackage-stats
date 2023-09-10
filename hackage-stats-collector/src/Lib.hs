@@ -48,7 +48,6 @@ someFunc = do
         yield extractedDir
           .| C.concatMapM (fmap fst . listDir)
           .| C.concatMapM (fmap fst . listDir)
-          .| C.take 100
           .| C.concatMapM (fmap snd . listDir)
           -- .| C.concatMapM (fmap (take 1) . fmap snd . listDir) -- Only the first cabal file
           .| C.filter ((".cabal" `isSuffixOf`) . fromAbsFile)

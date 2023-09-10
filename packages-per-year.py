@@ -23,12 +23,16 @@ package_counts = list(yearly_counts.values())
 
 # Create a plot
 plt.figure(figsize=(10, 6))
-plt.bar(years, package_counts, color='skyblue')
+bars = plt.bar(years, package_counts, color='skyblue')
 plt.xlabel('Year')
 plt.ylabel('Number of Packages Produced')
 plt.title('Packages Produced per Year')
 plt.xticks(rotation=45)
 plt.tight_layout()
+
+for bar, package_count in zip(bars, package_counts):
+    plt.annotate(str(package_count), (bar.get_x() + bar.get_width() / 2, bar.get_height()), ha='center', va='bottom')
+
 
 # Save the plot
 plt.savefig(sys.stdout.buffer, format='svg')

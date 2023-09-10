@@ -25,7 +25,7 @@ with open(sys.argv[1], 'r') as csv_file:
 
 
 # Sort the maintainers by the number of packages in descending order
-top_maintainers = sorted(maintainer_counts.items(), key=lambda x: x[1], reverse=True)[:100]
+top_maintainers = sorted(maintainer_counts.items(), key=lambda x: x[1], reverse=True)[:25]
 
 # Extract the names and counts of the top maintainers
 maintainers = [x[0] for x in top_maintainers]
@@ -38,7 +38,7 @@ plt.figure(figsize=(12, 6))
 bars = plt.barh(maintainers, package_counts, color='skyblue')
 plt.xlabel('Number of Packages Produced')
 plt.ylabel('Maintainer')
-plt.title('Number of Packages per Maintainer (Top 100)')
+plt.title('Number of Packages per Maintainer (Top 25)')
 plt.gca().invert_yaxis()  # Invert the y-axis for readability
 plt.tight_layout()
 

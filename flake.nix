@@ -18,11 +18,11 @@
       };
       pkgs = pkgsFor nixpkgs;
 
-      # indexTarGz = builtins.fetchurl "hackage.haskell.org/packages/index.tar.gz";
-      indexTarGz = pkgs.fetchurl {
-        url = "hackage.haskell.org/packages/index.tar.gz";
-        sha256 = "sha256-SkDUpo6sn1ytq+8kFrshA+WHOyz4xzA7CBXH/yRyDW4=";
-      };
+      indexTarGz = builtins.fetchurl "hackage.haskell.org/packages/index.tar.gz";
+      # indexTarGz = pkgs.fetchurl {
+      #   url = "hackage.haskell.org/packages/index.tar.gz";
+      #   sha256 = "sha256-SkDUpo6sn1ytq+8kFrshA+WHOyz4xzA7CBXH/yRyDW4=";
+      # };
       collector = pkgs.hackage-stats-collector;
       csv = pkgs.runCommand "hackage-stats.csv" { } ''
         ${collector}/bin/hackage-stats-collector ${indexTarGz} > $out
@@ -45,6 +45,7 @@
         '';
       };
       allPlots = pkgs.linkFarm "plots" [
+        { name = "data.csv"; path = csv; }
         { name = "packages-per-year.svg"; path = packagesPerYearPlot; }
         { name = "packages-per-maintainer.svg"; path = packagesPerMaintainerPlot; }
       ];
