@@ -1,5 +1,5 @@
-{ mkDerivation, base, bytestring, Cabal, conduit, containers, lib
-, path, path-io, tar, text, zlib
+{ mkDerivation, base, bytestring, Cabal, cassava, cassava-conduit
+, conduit, containers, lib, path, path-io, tar, text, time, zlib
 }:
 mkDerivation {
   pname = "hackage-stats-collector";
@@ -8,7 +8,8 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    base bytestring Cabal conduit containers path path-io tar text zlib
+    base bytestring Cabal cassava cassava-conduit conduit containers
+    path path-io tar text time zlib
   ];
   executableHaskellDepends = [ base ];
   license = "unknown";

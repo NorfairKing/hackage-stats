@@ -3,7 +3,14 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: cassava-conduit-0.6.2@sha256:0a955eec5876bc187a21da4a9a484f7f88d00994e8918830daac316f65cce4e4,2670
+    pantry-tree:
+      sha256: 697f31d69920090e24de1b038c74626c7d8bcbc882a898302d0e4194df963e3b
+      size: 655
+  original:
+    hackage: cassava-conduit-0.6.2@sha256:0a955eec5876bc187a21da4a9a484f7f88d00994e8918830daac316f65cce4e4,2670
 snapshots:
 - completed:
     sha256: e63b43d506918278d05cd1448bd19352ab2faa9b8e9d64ce527b56f1a7fba149

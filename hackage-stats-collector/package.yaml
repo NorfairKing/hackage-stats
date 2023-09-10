@@ -10,12 +10,15 @@ library:
   dependencies:
   - Cabal
   - bytestring
+  - cassava
+  - cassava-conduit
   - conduit
   - containers
   - path
   - path-io
   - tar
   - text
+  - time
   - zlib
 
 executables:
