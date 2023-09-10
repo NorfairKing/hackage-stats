@@ -18,7 +18,11 @@
       };
       pkgs = pkgsFor nixpkgs;
 
-      indexTarGz = builtins.fetchurl "hackage.haskell.org/packages/index.tar.gz";
+      # indexTarGz = builtins.fetchurl "hackage.haskell.org/packages/index.tar.gz";
+      indexTarGz = pkgs.fetchurl {
+        url = "hackage.haskell.org/packages/index.tar.gz";
+        sha256 = "sha256-SkDUpo6sn1ytq+8kFrshA+WHOyz4xzA7CBXH/yRyDW4=";
+      };
       collector = pkgs.hackage-stats-collector;
       csv = pkgs.runCommand "hackage-stats.csv" { } ''
         ${collector}/bin/hackage-stats-collector ${indexTarGz} > $out
@@ -32,9 +36,21 @@
           python $src ${csv} > $out
         '';
       };
+      packagesPerMaintainerPlot = pkgs.stdenv.mkDerivation {
+        name = "packages-per-maintainer.svg";
+        src = ./packages-per-maintainer.py;
+        buildInputs = [ pythonEnv ];
+        buildCommand = ''
+          python $src ${csv} > $out
+        '';
+      };
+      allPlots = pkgs.linkFarm "plots" [
+        { name = "packages-per-year.svg"; path = packagesPerYearPlot; }
+        { name = "packages-per-maintainer.svg"; path = packagesPerMaintainerPlot; }
+      ];
     in
     {
-      packages.${system}.default = packagesPerYearPlot;
+      packages.${system}.default = allPlots;
       checks.${system} = {
         pre-commit = pre-commit-hooks.lib.${system}.run {
           src = ./.;

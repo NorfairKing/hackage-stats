@@ -30,5 +30,5 @@ plt.title('Packages Produced per Year')
 plt.xticks(rotation=45)
 plt.tight_layout()
 
-# Save plot
+# Save the plot
 plt.savefig(sys.stdout.buffer, format='svg')
