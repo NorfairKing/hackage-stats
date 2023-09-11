@@ -90,7 +90,7 @@ readPackageInfo cabalFile = do
   let pid = package pd
   let packageInfoName = unPackageName $ pkgName pid
   let packageInfoVersion = prettyShow $ pkgVersion pid
-  let maintainerText = T.strip $ T.pack (fromShortText (maintainer pd))
+  let maintainerText = T.toCaseFold $ T.strip $ T.pack (fromShortText (maintainer pd))
   let packageInfoMaintainer = fromMaybe maintainerText $ maintainerText =~~ emailRegex
   packageInfoTime <- getModificationTime cabalFile
   let (packageInfoYear, _, _) = toGregorian $ utctDay packageInfoTime
