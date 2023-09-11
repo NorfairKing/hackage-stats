@@ -11,8 +11,10 @@ where
 import qualified Codec.Archive.Tar as Tar
 import qualified Codec.Compression.GZip as GZip
 import Conduit
+import Control.Monad
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.Conduit.Combinators as C
+import qualified Data.Conduit.ConcurrentMap as C
 import Data.Csv as Csv
 import Data.Csv.Conduit
 import Data.List
@@ -22,13 +24,15 @@ import Data.Time
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parsec as Cabal
 import Distribution.Pretty (prettyShow)
-import Distribution.Utils.ShortText as Cabal
+import Distribution.Utils.ShortText as Cabal (fromShortText)
 import Distribution.Verbosity as Cabal
 import GHC.Generics (Generic)
 import Path
 import Path.IO
 import System.Environment
 import System.Exit
+import System.IO
+import Text.Printf
 
 someFunc :: IO ()
 someFunc = do
@@ -44,22 +48,31 @@ someFunc = do
         then pure ()
         else Tar.unpack (fromAbsDir extractedDir) . Tar.read . GZip.decompress =<< LB.readFile tarFile
 
-      runConduit $
-        yield extractedDir
-          .| C.concatMapM (fmap fst . listDir)
-          .| C.concatMapM (fmap fst . listDir)
-          .| C.concatMapM (fmap snd . listDir)
-          -- .| C.concatMapM (fmap (take 1) . fmap snd . listDir) -- Only the first cabal file
-          .| C.filter ((".cabal" `isSuffixOf`) . fromAbsFile)
-          .| C.mapM readPackageInfo
-          .| toCsv Csv.defaultEncodeOptions
-          .| C.stdout
+      runResourceT $
+        runConduit $
+          yield extractedDir
+            .| C.mapM (fmap fst . listDir)
+            .| progressConduit
+            .| C.concatMapM (fmap fst . listDir)
+            .| C.concatMapM (fmap snd . listDir)
+            -- .| C.concatMapM (fmap (take 1) . fmap snd . listDir) -- Only the first cabal file
+            .| C.filter ((".cabal" `isSuffixOf`) . fromAbsFile)
+            .| C.concurrentMapM_numCaps 64 (liftIO . readPackageInfo)
+            .| toCsv Csv.defaultEncodeOptions
+            .| C.stdout
+
+progressConduit :: MonadIO m => ConduitT [o] o m ()
+progressConduit = awaitForever $ \vals -> do
+  let total = length vals
+  forM_ (zip [1 ..] vals) $ \(num, val) -> do
+    yield val
+    liftIO $ hPutStrLn stderr $ printf "%d/%d" (num :: Int) total
 
 data PackageInfo = PackageInfo
   { packageInfoName :: String,
     packageInfoVersion :: String,
     packageInfoMaintainer :: Text,
-    packageInfoTime :: UTCTime
+    packageInfoYear :: Integer
   }
   deriving (Show, Eq, Generic)
 
@@ -77,4 +90,5 @@ readPackageInfo cabalFile = do
   let packageInfoVersion = prettyShow $ pkgVersion pid
   let packageInfoMaintainer = T.strip $ T.pack (fromShortText (maintainer pd))
   packageInfoTime <- getModificationTime cabalFile
+  let (packageInfoYear, _, _) = toGregorian $ utctDay packageInfoTime
   pure PackageInfo {..}

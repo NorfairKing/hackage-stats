@@ -23,6 +23,7 @@ library
     , cassava
     , cassava-conduit
     , conduit
+    , conduit-concurrent-map
     , containers
     , path
     , path-io
