@@ -18,6 +18,7 @@ import qualified Data.Conduit.ConcurrentMap as C
 import Data.Csv as Csv
 import Data.Csv.Conduit
 import Data.List
+import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time
@@ -33,6 +34,7 @@ import System.Environment
 import System.Exit
 import System.IO
 import Text.Printf
+import Text.Regex.TDFA
 
 someFunc :: IO ()
 someFunc = do
@@ -88,7 +90,15 @@ readPackageInfo cabalFile = do
   let pid = package pd
   let packageInfoName = unPackageName $ pkgName pid
   let packageInfoVersion = prettyShow $ pkgVersion pid
-  let packageInfoMaintainer = T.strip $ T.pack (fromShortText (maintainer pd))
+  let maintainerText = T.strip $ T.pack (fromShortText (maintainer pd))
+  let packageInfoMaintainer = fromMaybe maintainerText $ maintainerText =~~ emailRegex
   packageInfoTime <- getModificationTime cabalFile
   let (packageInfoYear, _, _) = toGregorian $ utctDay packageInfoTime
   pure PackageInfo {..}
+
+emailRegex :: String
+emailRegex = concat [localPart, "@", domainPart, "\\.", tldRegex]
+  where
+    localPart = "[a-zA-Z0-9_.+-]+"
+    domainPart = "[-a-zA-Z0-9@:%._\\+~#=]{1,64}"
+    tldRegex = "[a-z]{1,63}"

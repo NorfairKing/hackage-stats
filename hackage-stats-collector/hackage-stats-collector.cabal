@@ -27,6 +27,7 @@ library
     , containers
     , path
     , path-io
+    , regex-tdfa
     , tar
     , text
     , time

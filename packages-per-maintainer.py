@@ -30,7 +30,6 @@ top_maintainers = sorted(maintainer_counts.items(), key=lambda x: x[1], reverse=
 # Extract the names and counts of the top maintainers
 maintainers = [x[0] for x in top_maintainers]
 package_counts = [x[1] for x in top_maintainers]
-last_upload_dates = [last_upload_dates[maintainer] for maintainer in maintainers]
 
 
 # Create a bar plot
@@ -42,8 +41,8 @@ plt.title('Number of Packages per Maintainer (Top 25)')
 plt.gca().invert_yaxis()  # Invert the y-axis for readability
 plt.tight_layout()
 
-for bar, last_date in zip(bars, last_upload_dates):
-    plt.text(bar.get_width() + 1, bar.get_y() + bar.get_height() / 2, last_date, ha='left', va='center')
+for bar, package_count in zip(bars, package_counts):
+    plt.text(bar.get_width() + 1, bar.get_y() + bar.get_height() / 2, package_count, ha='left', va='center')
 
 
 # Save the plot
