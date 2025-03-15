@@ -1,8 +1,8 @@
-resolver: lts-20.25
+resolver: lts-22.39
 packages:
 - hackage-stats-collector
 extra-deps:
-- cassava-conduit-0.6.2@sha256:0a955eec5876bc187a21da4a9a484f7f88d00994e8918830daac316f65cce4e4,2670
+# - cassava-conduit-0.6.2@sha256:0a955eec5876bc187a21da4a9a484f7f88d00994e8918830daac316f65cce4e4,2670
 nix:
   enable: false
 system-ghc: true

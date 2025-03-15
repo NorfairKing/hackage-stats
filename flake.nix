@@ -1,7 +1,7 @@
 {
   description = "hackage-stats-collector";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-24.11";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
@@ -36,6 +36,14 @@
           python $src ${csv} > $out
         '';
       };
+      uploadsPerMaintainerPlot = pkgs.stdenv.mkDerivation {
+        name = "uploads-per-maintainer.svg";
+        src = ./uploads-per-maintainer.py;
+        buildInputs = [ pythonEnv ];
+        buildCommand = ''
+          python $src ${csv} > $out
+        '';
+      };
       packagesPerMaintainerPlot = pkgs.stdenv.mkDerivation {
         name = "packages-per-maintainer.svg";
         src = ./packages-per-maintainer.py;
@@ -47,6 +55,7 @@
       allPlots = pkgs.linkFarm "plots" [
         { name = "data.csv"; path = csv; }
         { name = "packages-per-year.svg"; path = packagesPerYearPlot; }
+        { name = "uploads-per-maintainer.svg"; path = uploadsPerMaintainerPlot; }
         { name = "packages-per-maintainer.svg"; path = packagesPerMaintainerPlot; }
       ];
     in

@@ -22,8 +22,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time
 import Distribution.PackageDescription
-import Distribution.PackageDescription.Parsec as Cabal
 import Distribution.Pretty (prettyShow)
+import Distribution.Simple.PackageDescription as Cabal
 import Distribution.Utils.ShortText as Cabal (fromShortText)
 import Distribution.Verbosity as Cabal
 import GHC.Generics (Generic)
